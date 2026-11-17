@@ -36,3 +36,9 @@ Select a gene and patient to view the fitted structure and download coordinates.
 
 - **TCGA-CESC.** Gene-level quartiles by histology for primary tumours with data in the [UCSC Xena HiSeqV2 expression matrix](https://xenabrowser.net/datapages/?dataset=TCGA.CESC.sampleMap%2FHiSeqV2&host=https%3A%2F%2Ftcga.xenahubs.net). The build script matches the [Xena phenotype file](https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.CESC.sampleMap%2FCESC_clinicalMatrix) by sample ID and excludes metastatic and normal samples. Only group summaries are bundled. Run `Rscript scripts/tcga_expression.R XENA_EXPRESSION.tsv.gz XENA_CLINICAL.tsv` to regenerate.
 - **CRA001401.** [GSA study](https://ngdc.cncb.ac.cn/gsa/browse/CRA001401) and [reported TAD and sequencing QC counts](https://doi.org/10.3389/fcell.2021.706375). Study labels use experiment accessions because the archive and article number the two tumours differently. Bundled summaries contain no normalized contact matrix. The Patient cohort tab can reconstruct uploaded hg19 40 kb matrices using the UCSC hg19 RefSeq Select track.
+
+## Drug comparison
+
+The side-by-side HeLa-S3 view uses replicate 2 of the asynchronous unsorted 2-hour exposure in [GSE198610](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE198610). The vehicle control is DMSO ([GSM5953524](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5953524)); the treatment is 30 µM ICRF-193 ([GSM5953522](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5953522)). Coordinates come from independently fitted local structures. Descriptive contact concordance uses both measured maps. The view covers a single replicate pair and does not estimate a treatment effect.
+
+Build the GRCh38 25 kb contact bands with `Rscript scripts/mcool_bands.R MODEL path/to/map.mcool` using rhdf5. The build uses the balancing weights stored in each published contact map.
