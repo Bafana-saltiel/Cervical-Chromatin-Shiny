@@ -4,9 +4,7 @@ R Shiny explorer for all DepMap 24Q4 Cervix cell lines and measured gene symbols
 
 ## Run locally
 
-The original app and experimental sources are in `chromatin-source.tar.gz`. The `hic-*.tar.gz` files contain chromosome contact bands with paths relative to the app directory. The root loader extracts all archives at startup. To modify the original source, unpack every archive into a separate folder.
-
-To run locally, open R in the repository directory and run:
+Extract every repository archive into a separate folder to inspect the source. The root loader uses the bundled archives directly. From the repository directory in R, run:
 
 ```r
 install.packages("shiny")
@@ -27,3 +25,9 @@ Push this directory to a GitHub repository with `app.R` at the repository root. 
 - The three cell-line Hi-C maps and DepMap assays are independent observations. Use the app for exploratory comparisons across cell lines. Patient mRNA, protein, treatment and outcome data are outside the viewer's scope.
 
 Rebuild the contact bands with `Rscript scripts/hic_bands.R MODEL path/to/map.hic` (requires strawr) and the gene annotation with `Rscript scripts/gene_loci.R ncbiRefSeqSelect.txt.gz ncbiRefSeqCurated.txt.gz`. The smaller original review-panel data and scripts remain available for reproducing the initial figures.
+
+## Patient cohort tab
+
+Upload a CSV containing normalized local Hi-C contacts for one or more coded patients. Use columns `patient_id,chr,start1,start2,balanced` with zero-based GRCh38 25 kb bin starts and one record per contact pair per patient. Use the same normalization method across the cohort. The hosted app uses the file in the current Shiny session and supports uploads up to 5 MB. Exclude identifiers and identifying clinical information.
+
+Select a gene and patient to view the fitted structure and download coordinates. The summary CSV shows coverage and fit diagnostics for all patients at the selected locus.
