@@ -42,10 +42,13 @@ Select a gene and patient to view the fitted structure and download coordinates.
 The side-by-side HeLa-S3 view uses replicate 2 of the asynchronous unsorted 2-hour exposure in [GSE198610](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE198610). The vehicle control is DMSO ([GSM5953524](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5953524)); the treatment is 30 µM ICRF-193 ([GSM5953522](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5953522)). Coordinates come from independently fitted local structures. Descriptive contact concordance uses both measured maps. The view covers a single replicate pair and does not estimate a treatment effect.
 
 Build the GRCh38 25 kb contact bands with `Rscript scripts/mcool_bands.R MODEL path/to/map.mcool` using rhdf5. The build uses the balancing weights stored in each published contact map.
+
 ### Non-cancerous epithelial reference
 
 The fourth structure in the drug tab uses the published [Rao et al. NHEK Hi-C map (GSE63525)](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE63525). NHEK are primary normal human epidermal keratinocytes from skin. The app reconstructs the selected gene at its hg19 RefSeq Select locus from 25 kb KR-normalized contacts. The contact-band build command is `Rscript scripts/hic_bands.R NHEK path/to/map.hic hg19`. Existing pairwise statistics and explanations compare the three GRCh38 maps.
 
-## Experiments tab
+## Hi-C reanalysis tab
 
-Use GSE198610's chr14 HeLa-S3 subset at 250 kb (GRCh38), or upload balanced cis contacts with columns `sample_id,chromosome,bin1,bin2,contact` and sample metadata with columns `sample_id,condition,time_hours,replicate,assembly`. Use zero-based bins, explicit zero contacts and a common assembly and bin size. The example includes the unsorted 4 h and 8 h DMSO and ICRF-193 samples from replicate 2. Run `scripts/mitotic_example.R` with the directory holding the four corresponding NCBI GEO .mcool files named by sample accession to regenerate it. The optional experimental measurement input takes `sample_id,metric,x,value`.
+Use the HeLa-S3 example or upload your own balanced contact pairs, sample metadata and gene list. Start with the example templates in the app. Select a reference, comparison and chromosome. The ZIP includes per-gene annotations, candidate TADs and boundaries, PC1 and optional activity-phased compartments, virtual 4C, focal promoter-contact candidates, figures and methods. The MC-3C example uses quantitative summaries of the authors’ original C-walk data. See `R/reanalysis_methods.txt` for coordinate conventions, scoring and interpretation.
+
+To prepare multiplicatively balanced Cooler maps, provide a CSV named `maps.csv` with `sample_id,path` and run, for example, `Rscript scripts/export_reanalysis_mcool.R maps.csv 250000 chr14 contacts.csv.gz`. The exporter requires Bioconductor's `rhdf5`. The metadata CSV and BED/DEG uploads must be prepared separately.
