@@ -28,6 +28,11 @@ Rebuild the contact bands with `Rscript scripts/hic_bands.R MODEL path/to/map.hi
 
 ## Patient cohort tab
 
-Upload a CSV containing normalized local Hi-C contacts for one or more coded patients. Use columns `patient_id,chr,start1,start2,balanced` with zero-based GRCh38 25 kb bin starts and one record per contact pair per patient. Use the same normalization method across the cohort. The hosted app uses the file in the current Shiny session and supports uploads up to 5 MB. Exclude identifiers and identifying clinical information.
+Upload a CSV containing normalized local Hi-C contacts for one or more coded patients. Use columns `patient_id,chr,start1,start2,balanced` with zero-based GRCh38 25 kb or hg19 40 kb bin starts and one record per contact pair per patient. Use the same normalization method across the cohort. The hosted app uses the file in the current Shiny session and supports uploads up to 5 MB. Exclude identifiers and identifying clinical information.
 
 Select a gene and patient to view the fitted structure and download coordinates. The summary CSV shows coverage and fit diagnostics for all patients at the selected locus.
+
+## Public cohorts
+
+- **TCGA-CESC.** Gene-level quartiles by histology for primary tumours with data in the [UCSC Xena HiSeqV2 expression matrix](https://xenabrowser.net/datapages/?dataset=TCGA.CESC.sampleMap%2FHiSeqV2&host=https%3A%2F%2Ftcga.xenahubs.net). The build script matches the [Xena phenotype file](https://tcga-xena-hub.s3.us-east-1.amazonaws.com/download/TCGA.CESC.sampleMap%2FCESC_clinicalMatrix) by sample ID and excludes metastatic and normal samples. Only group summaries are bundled. Run `Rscript scripts/tcga_expression.R XENA_EXPRESSION.tsv.gz XENA_CLINICAL.tsv` to regenerate.
+- **CRA001401.** [GSA study](https://ngdc.cncb.ac.cn/gsa/browse/CRA001401) and [reported TAD and sequencing QC counts](https://doi.org/10.3389/fcell.2021.706375). Study labels use experiment accessions because the archive and article number the two tumours differently. Bundled summaries contain no normalized contact matrix. The Patient cohort tab can reconstruct uploaded hg19 40 kb matrices using the UCSC hg19 RefSeq Select track.

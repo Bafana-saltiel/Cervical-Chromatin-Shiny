@@ -868,7 +868,7 @@
       "checksum": "7a911225ae3b4d868fcf230af219cbba"
     },
     "chromatin-source.tar.gz": {
-      "checksum": "3b4b69c98bbea9b2d1a31ae669e6a9be"
+      "checksum": "bc7c020dc7e73b231c60166791994038"
     },
     "hic-C33A-a.tar.gz": {
       "checksum": "73449224c5f53c4beb8870e8e52c2aec"
@@ -907,7 +907,7 @@
       "checksum": "1071891dce2019bff12f97dfe9ee4b80"
     },
     "README.md": {
-      "checksum": "8ec7371a724311aaff173ab6277b51ec"
+      "checksum": "0063fb1d046c8236343f275457c41872"
     }
   },
   "users": null
