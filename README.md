@@ -4,7 +4,7 @@ R Shiny explorer for all DepMap 24Q4 Cervix cell lines and measured gene symbols
 
 ## Run locally
 
-Extract every repository archive into a separate folder to inspect the source. The root loader uses the bundled archives directly. From the repository directory in R, run:
+From this directory in R, run:
 
 ```r
 install.packages("shiny")
@@ -42,3 +42,6 @@ Select a gene and patient to view the fitted structure and download coordinates.
 The side-by-side HeLa-S3 view uses replicate 2 of the asynchronous unsorted 2-hour exposure in [GSE198610](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE198610). The vehicle control is DMSO ([GSM5953524](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5953524)); the treatment is 30 µM ICRF-193 ([GSM5953522](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5953522)). Coordinates come from independently fitted local structures. Descriptive contact concordance uses both measured maps. The view covers a single replicate pair and does not estimate a treatment effect.
 
 Build the GRCh38 25 kb contact bands with `Rscript scripts/mcool_bands.R MODEL path/to/map.mcool` using rhdf5. The build uses the balancing weights stored in each published contact map.
+### Non-cancerous epithelial reference
+
+The fourth structure in the drug tab uses the published [Rao et al. NHEK Hi-C map (GSE63525)](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE63525). NHEK are primary normal human epidermal keratinocytes from skin. The app reconstructs the selected gene at its hg19 RefSeq Select locus from 25 kb KR-normalized contacts. The contact-band build command is `Rscript scripts/hic_bands.R NHEK path/to/map.hic hg19`. Existing pairwise statistics and explanations compare the three GRCh38 maps.

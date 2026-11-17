@@ -868,7 +868,7 @@
       "checksum": "7a911225ae3b4d868fcf230af219cbba"
     },
     "chromatin-source.tar.gz": {
-      "checksum": "f33e3db0ca0266c4f521b65377ff1508"
+      "checksum": "c3ea04450c42c26081a50b74e9412f0b"
     },
     "hic-C33A-a.tar.gz": {
       "checksum": "73449224c5f53c4beb8870e8e52c2aec"
@@ -903,6 +903,9 @@
     "hic-HeLaS3_ICRF193.tar.gz": {
       "checksum": "c9fbe7a330311e0933d86120481ea9e7"
     },
+    "hic-NHEK.tar.gz": {
+      "checksum": "1d5aa45e8d3b945cb6dcd2af32db533b"
+    },
     "hic-SiHa-a.tar.gz": {
       "checksum": "68e2ca31312c56459cbb1e0ae77476f5"
     },
@@ -913,7 +916,7 @@
       "checksum": "1071891dce2019bff12f97dfe9ee4b80"
     },
     "README.md": {
-      "checksum": "9609c4021eea98885c50d233734ad28a"
+      "checksum": "00309948ed267ea3a1d7c5a5d1203fd4"
     }
   },
   "users": null
