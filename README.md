@@ -1,6 +1,6 @@
 # Cervical cancer chromatin explorer
 
-R Shiny explorer for 61 gene loci across SiHa, Ca Ski, and C-33 A. Select a review panel, gene, and cell line to rotate the local 3D model, compare RNA expression and CRISPR gene-effect scores, and download the plotted values.
+R Shiny explorer for all DepMap 24Q4 Cervix cell lines and measured gene symbols. Local 3D reconstructions cover 61 loci in SiHa, Ca Ski, and C-33 A. Select a review panel, gene, and cell line to rotate the local 3D model, compare RNA expression and CRISPR gene-effect scores, and download the plotted values.
 
 ## Run locally
 
@@ -20,7 +20,7 @@ Push this directory to a GitHub repository with `app.R` at the repository root. 
 ## Data and methods
 
 - Hi-C contact maps are from [GSE195631](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE195631). Individual source URLs are in `data/cell_line_sources.csv`. The bundled coordinates are local GRCh38 25 kb cis-contact embeddings from the cervical SCC review-panel analysis. Classical multidimensional scaling provides an independently inferred geometry for each locus and line. Axes and distances are arbitrary. Rotation and reflection can change between models. Use the rank correlation table for the descriptive comparison of contacts within distance bands.
-- [DepMap Public 24Q4](https://doi.org/10.25452/figshare.plus.27993248.v1) provides gene expression in log2(TPM + 1) and CRISPR gene-effect scores. Inputs and checksums are recorded in `data/depmap_sources.csv`. The model joins use ACH identifiers and the features use gene symbols. Blank scores are missing. RNA values cover all 61 loci per line and CRISPR values cover 59 per line.
+- [DepMap Public 24Q4](https://doi.org/10.25452/figshare.plus.27993248.v1) provides gene expression in log2(TPM + 1) and CRISPR gene-effect scores. Inputs and checksums are recorded in `data/depmap_sources.csv`. The model joins use ACH identifiers and the features preserve the release gene symbols and Entrez IDs. The model list follows DepMap lineage and model-type metadata. Assay coverage varies by model and gene. Blank scores are missing.
 - From this directory, run `Rscript scripts/depmap.R` to rebuild the compact DepMap tables from the pinned release. The raw matrix cache requires about 900 MB. The running app reads only bundled tables.
 - The three cell-line Hi-C maps and DepMap assays are independent observations. Use the app for exploratory comparisons across cell lines. Patient mRNA, protein, treatment and outcome data are outside the viewer's scope.
 
