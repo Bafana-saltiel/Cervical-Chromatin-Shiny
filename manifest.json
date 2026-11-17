@@ -865,13 +865,49 @@
   },
   "files": {
     "app.R": {
-      "checksum": "3b77b53e32bb6a90c9222b4b35f5b2e9"
+      "checksum": "7a911225ae3b4d868fcf230af219cbba"
     },
     "chromatin-source.tar.gz": {
-      "checksum": "29158c448dade5bc5931f8f4ec52e9d9"
+      "checksum": "fd01fb475112ab6c4e0bc108edc5353e"
+    },
+    "hic-C33A-a.tar.gz": {
+      "checksum": "73449224c5f53c4beb8870e8e52c2aec"
+    },
+    "hic-C33A-b.tar.gz": {
+      "checksum": "41026426bccc638d9612c9ed1b56640e"
+    },
+    "hic-C33A-c.tar.gz": {
+      "checksum": "6e08818ac0ea25c1ec51bcb572d8ab1f"
+    },
+    "hic-CaSki-a.tar.gz": {
+      "checksum": "2d83d6388eb51f436f58588b0a4f7a20"
+    },
+    "hic-CaSki-b.tar.gz": {
+      "checksum": "7dcb30d1a63bea9d00672d8fa2cdd1fd"
+    },
+    "hic-CaSki-c.tar.gz": {
+      "checksum": "6e8489d0d15be20cb330bc1b5dc35cbc"
+    },
+    "hic-HeLa-a.tar.gz": {
+      "checksum": "c1d6f14c3f5cbf8a648ce83f5d6cf85d"
+    },
+    "hic-HeLa-b.tar.gz": {
+      "checksum": "4e5c188e04472461d1a4a99cc3dbb0cd"
+    },
+    "hic-HeLa-c.tar.gz": {
+      "checksum": "d87dc081c71150eecc4f504d9ef79ba8"
+    },
+    "hic-SiHa-a.tar.gz": {
+      "checksum": "68e2ca31312c56459cbb1e0ae77476f5"
+    },
+    "hic-SiHa-b.tar.gz": {
+      "checksum": "74c3306cbbfae9ace5afa9c0a6a04801"
+    },
+    "hic-SiHa-c.tar.gz": {
+      "checksum": "1071891dce2019bff12f97dfe9ee4b80"
     },
     "README.md": {
-      "checksum": "061205cc0ea199d5ab70aaca92da8bf0"
+      "checksum": "68483ffa281ae517d1dc5baf3c12d863"
     }
   },
   "users": null
