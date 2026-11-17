@@ -1,12 +1,12 @@
 library(shiny)
 
-# Extract the reproducible source bundle into a writable location on the host.
+# Connect Cloud can keep application source read-only.
 source_dir <- tempfile("chromatin-source-")
 dir.create(source_dir)
-utils::untar("chromatin-source.tar.gz", exdir = source_dir)
-
-# The app reads the data during startup. Shiny serves the bundled assets
-# through an explicit resource path so they remain available across sessions.
+archives <- c("chromatin-source.tar.gz", list.files(pattern = "^hic-.*[.]tar[.]gz$"))
+for (archive in archives) {
+  stopifnot(utils::untar(archive, exdir = source_dir) == 0L)
+}
 addResourcePath("chromatin-assets", file.path(source_dir, "www"))
 app_environment <- new.env(parent = globalenv())
 previous <- options(chromatin.assetPrefix = "chromatin-assets/")
