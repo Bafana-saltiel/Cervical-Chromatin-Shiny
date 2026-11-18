@@ -34,6 +34,23 @@ ui_lines <- readLines(ui_file, warn = FALSE)
 insert_after <- grep('reanalysis_ui(),', ui_lines, fixed = TRUE)
 stopifnot(length(insert_after) == 1L)
 ui_lines <- append(ui_lines, c(
+  '      tabPanel("Cervical RAD51B workflow",',
+  '        tags$section(class="card",',
+  '          h3("Compare RAD51B promoter contacts in HeLa and CaSki"),',
+  '          p("GSE195631 · GRCh38 · chr14:65.25–70.50 Mb · 25 kb bins"),',
+  '          p(actionButton("open_rad51b_upload", "Open Hi-C upload")),',
+  '          tags$ol(',
+  '            tags$li("Extract the ZIP. Upload RAD51B_cervical_contacts_25kb.csv.gz as Contacts, samples_GRCh38.csv as Sample metadata, and RAD51B_GRCh38.csv as Gene or DEG lists."),',
+  '            tags$li("Start with HeLa as the reference, CaSki as the comparison, and RAD51B as the promoter."),',
+  '            tags$li("Optionally upload HeLa_H3K27ac_GRCh38.bed as the feature track. Both views show the same HeLa annotation. Overlap in the CaSki view identifies a location annotated in HeLa.")),',
+  '          p("The regional analysis provides contact maps, candidate TAD boundaries, unphased compartment scores, and promoter-centred virtual 4C. Compare RNA expression using the separate CSV. WGBS links are included for follow-up. Methylation has yet to be summarized."),',
+  '          p(tags$a("GSE195631 study and source files", href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE195631", target="_blank", rel="noopener"))),',
+  '        tags$section(class="card",',
+  '          h3("Genome-wide analysis tools"),',
+  '          tags$ul(',
+  '            tags$li(tags$a("cooltools CLI", href="https://cooltools.readthedocs.io/en/latest/cli.html", target="_blank", rel="noopener"), " · Run eigs-cis on a full balanced .cool or .mcool map with a matching phasing track for oriented A/B scores. Use insulation for boundaries or dots for focal enrichments."),',
+  '            tags$li(tags$a("Juicer HiCCUPS", href="https://github.com/aidenlab/juicer/wiki/HiCCUPS", target="_blank", rel="noopener"), " · Call loops with a full .hic map at a depth-supported resolution. Loop significance applies within a sample. Treatment or cell-line differences require a separate replicate-aware analysis.")),',
+  '          p("These tools run outside Shiny on the full maps. The supplied regional CSV supports descriptive reanalysis."))),',
   '      tabPanel("Model datasets",',
   '        tags$section(class="card",',
   '          h3("Cervical cell-line multi-omics"),',
@@ -100,6 +117,14 @@ ui_lines <- append(ui_lines, c(
   '          h5("Treatment-matched expression") ,',
   '          p("Untested. The GSE198610 deposit contains chromatin-contact assays. We did not identify matched RNA measurements for these six Hi-C samples. The regulatory effect on RAD51B expression remains unknown."))),'
 ), after = insert_after)
+server_hook <- grep('server <- function(input,output,session){', ui_lines, fixed = TRUE)
+stopifnot(length(server_hook) == 1L)
+ui_lines <- append(ui_lines, c(
+  '  observeEvent(input$open_rad51b_upload, {',
+  '    updateTabsetPanel(session, "analysis_tab", selected = "Hi-C reanalysis")',
+  '    updateRadioButtons(session, "re_source", selected = "Upload study")',
+  '  })'
+), after = server_hook)
 writeLines(ui_lines, ui_file)
 
 addResourcePath("chromatin-assets", file.path(source_dir, "www"))
