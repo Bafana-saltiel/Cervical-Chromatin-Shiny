@@ -1,0 +1,109 @@
+name: Cervical RAD51B cooltools
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/cervical-cooltools.yml']
+permissions:
+  contents: read
+jobs:
+  chr14:
+    name: chr14 · ${{ matrix.line }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - line: HeLa
+            hic: GSM6658912
+            signal: GSM5842008
+          - line: CaSki
+            hic: GSM6658910
+            signal: GSM5842005
+    env:
+      OPENBLAS_NUM_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: chromatin
+          create-args: >-
+            -c conda-forge -c bioconda
+            python=3.11 hictk cooler=0.10 cooltools=0.7 pybigwig
+      - name: Download and convert published maps
+        env:
+          LINE: ${{ matrix.line }}
+          HIC: ${{ matrix.hic }}
+          SIGNAL: ${{ matrix.signal }}
+        run: |
+          mkdir -p results
+          root=https://ftp.ncbi.nlm.nih.gov/geo/samples
+          hic_url="$root/GSM6658nnn/$HIC/suppl/${HIC}_${LINE}.allValidPairs.hic"
+          track_url="$root/GSM5842nnn/$SIGNAL/suppl/${SIGNAL}_${LINE}-H3K27ac.bw"
+          curl --fail --location --retry 3 "$hic_url" --output input.hic
+          curl --fail --location --retry 3 "$track_url" --output activity.bw
+          printf 'Hi-C\t%s\nH3K27ac\t%s\n' "$hic_url" "$track_url" > results/sources.tsv
+          hictk convert input.hic raw.cool --resolutions 25000 --normalization-methods NONE --genome GRCh38
+          rm input.hic
+      - name: Extract and balance full chromosome 14
+        run: |
+          python - <<'PY'
+          import cooler
+          source = cooler.Cooler('raw.cool')
+          chrom = next(name for name in source.chromnames if name in {'14', 'chr14'})
+          bins = source.bins().fetch(chrom).copy()
+          offset = source.offset(chrom)
+          pixels = source.matrix(as_pixels=True, balance=False).fetch(chrom).copy()
+          pixels[['bin1_id', 'bin2_id']] -= offset
+          if pixels.empty or bins.end.iloc[-1] != 107043718:
+              raise ValueError('Expected nonempty full GRCh38 chromosome 14')
+          cooler.create_cooler('chr14.cool', bins, pixels, ordered=True, assembly='GRCh38')
+          PY
+          rm raw.cool
+          cooler balance --cis-only --nproc 2 --convergence-policy error chr14.cool
+          cooler coarsen --factor 10 --out chr14_250kb.cool chr14.cool
+          cooler balance --cis-only --nproc 2 --convergence-policy error chr14_250kb.cool
+      - name: Run cooltools on chromosome 14
+        run: |
+          python - <<'PY'
+          import cooler
+          import numpy as np
+          import pyBigWig
+          bins = cooler.Cooler('chr14_250kb.cool').bins()[:][['chrom', 'start', 'end']]
+          with pyBigWig.open('activity.bw') as track:
+              chrom = next(name for name in ('chr14', '14') if name in track.chroms())
+              if track.chroms(chrom) != 107043718:
+                  raise ValueError('H3K27ac track does not match GRCh38 chromosome 14')
+              bins['activity'] = [track.stats(chrom, row.start, row.end, exact=True)[0] for row in bins.itertuples()]
+          if bins.activity.notna().sum() < 50 or not np.isfinite(bins.activity.std()) or bins.activity.std() == 0:
+              raise ValueError('Insufficient variation or coverage for H3K27ac phasing')
+          bins.to_csv('results/phasing_250kb.tsv', sep='\t', header=False, index=False, na_rep='NaN')
+          PY
+          cooltools insulation -p 2 -o results/insulation_25kb.tsv chr14.cool 250000 500000
+          cooltools eigs-cis --phasing-track results/phasing_250kb.tsv::activity -o results/compartments_250kb chr14_250kb.cool
+          cooltools expected-cis -p 2 -o results/expected_25kb.tsv chr14.cool
+          cooltools dots -p 2 --fdr 0.02 -o results/dots_25kb.tsv chr14.cool results/expected_25kb.tsv
+      - name: Record methods and versions
+        if: always()
+        run: |
+          mkdir -p results
+          micromamba list --explicit > results/environment.txt
+          cat > results/README.txt <<'EOF'
+          GSE195631, full GRCh38 chromosome 14, baseline cervical cell lines.
+          Cooler cis balancing on raw counts at each resolution.
+          Cooltools insulation at 25 kb, 250 kb and 500 kb windows.
+          Cooltools cis eigenvectors at 250 kb, phased by same-line H3K27ac.
+          Cooltools expected contacts and candidate dots at 25 kb, FDR 0.02.
+          Dot calls are within-sample; comparisons between cell lines are descriptive.
+          Review compartment eigenvectors and phasing coverage before A/B assignment.
+          Review the GitHub Actions job status before using any partial outputs.
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cooltools-chr14-${{ matrix.line }}
+          path: results/
