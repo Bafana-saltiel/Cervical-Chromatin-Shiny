@@ -64,9 +64,9 @@ jobs:
           cooler.create_cooler('chr14.cool', bins, pixels, ordered=True, assembly='GRCh38')
           PY
           rm raw.cool
-          cooler balance --cis-only --nproc 2 --convergence-policy error chr14.cool
+          cooler balance --cis-only --nproc 2 --max-iters 2000 --convergence-policy error chr14.cool
           cooler coarsen --factor 10 --out chr14_250kb.cool chr14.cool
-          cooler balance --cis-only --nproc 2 --convergence-policy error chr14_250kb.cool
+          cooler balance --cis-only --nproc 2 --max-iters 2000 --convergence-policy error chr14_250kb.cool
       - name: Run cooltools on chromosome 14
         run: |
           python - <<'PY'
@@ -81,12 +81,12 @@ jobs:
               bins['activity'] = [track.stats(chrom, row.start, row.end, exact=True)[0] for row in bins.itertuples()]
           if bins.activity.notna().sum() < 50 or not np.isfinite(bins.activity.std()) or bins.activity.std() == 0:
               raise ValueError('Insufficient variation or coverage for H3K27ac phasing')
-          bins.to_csv('results/phasing_250kb.tsv', sep='\t', header=False, index=False, na_rep='NaN')
+          bins.to_csv('results/phasing_250kb.tsv', sep='\t', header=True, index=False, na_rep='NaN')
           PY
           cooltools insulation -p 2 -o results/insulation_25kb.tsv chr14.cool 250000 500000
           cooltools eigs-cis --phasing-track results/phasing_250kb.tsv::activity -o results/compartments_250kb chr14_250kb.cool
           cooltools expected-cis -p 2 -o results/expected_25kb.tsv chr14.cool
-          cooltools dots -p 2 --fdr 0.02 -o results/dots_25kb.tsv chr14.cool results/expected_25kb.tsv
+          cooltools dots -p 2 --fdr 0.02 -o results/dots_25kb.tsv chr14.cool results/expected_25kb.tsv::balanced.avg
       - name: Record methods and versions
         if: always()
         run: |
