@@ -56,7 +56,10 @@ ui_lines <- append(ui_lines, c(
   '          p("Enrichment exceeded 1 in all six samples and was lower with ICRF-193 in each pair. This is a descriptive comparison of the selected bin pair."),',
   '          a("GEO GSE198610", href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE198610")),',
   '        tags$section(class="card",',
-  '          h4("RAD51B expression in matched samples"),',
+  '          h4("RAD51B expression in HeLa"),
+  '          p("DepMap Public 24Q4 HeLa (ACH-001086) baseline RAD51B expression is 1.952 log2(TPM + 1), equivalent to approximately 2.87 TPM. This measurement comes from the HeLa cell-line data bundled with the app."),',
+  '          p(a("DepMap Public 24Q4", href="https://doi.org/10.25452/figshare.plus.27993248.v1")),',
+  '          h5("Treatment-matched expression") ,',
   '          p("Untested. The GSE198610 deposit contains chromatin-contact assays. We did not identify matched RNA measurements for these six Hi-C samples. The regulatory effect on RAD51B expression remains unknown."))),'
 ), after = insert_after)
 writeLines(ui_lines, ui_file)
