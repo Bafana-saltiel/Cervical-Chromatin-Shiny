@@ -11,6 +11,62 @@ for (archive in archives) {
 # Extend the locus overview in the unpacked source.
 reanalysis_file <- file.path(source_dir, "R", "chromatin_reanalysis.R")
 reanalysis <- readLines(reanalysis_file, warn = FALSE)
+# Add a public, bundled cervical study to the existing reanalysis data sources.
+cervical_zip <- "GSE195631_RAD51B_HiC_upload.zip"
+cervical_dir <- file.path(source_dir, "data", "GSE195631")
+dir.create(cervical_dir, recursive = TRUE, showWarnings = FALSE)
+cervical_files <- c("RAD51B_cervical_contacts_25kb.csv.gz", "samples_GRCh38.csv",
+                    "RAD51B_GRCh38.csv", "HeLa_H3K27ac_GRCh38.bed")
+utils::unzip(cervical_zip, files = cervical_files, exdir = cervical_dir)
+stopifnot(all(file.exists(file.path(cervical_dir, cervical_files))))
+replace_reanalysis_line <- function(lines, old, replacement) {
+  i <- which(trimws(lines) == old)
+  stopifnot(length(i) == 1L)
+  append(lines[-i], replacement, after = i - 1L)
+}
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'radioButtons("re_source","Data source", c("HeLa-S3 study","Upload study"), inline=TRUE),',
+  c('      radioButtons("re_source", "Data source", c("HeLa-S3 study", "Cervical RAD51B (GSE195631)", "Upload study"), inline=TRUE),',
+    '      conditionalPanel("input.re_source === \'Cervical RAD51B (GSE195631)\'",',
+    '        p("Five baseline cervical cell-line maps. GRCh38 chr14:65.25–70.50 Mb at 25 kb. The shared overlay is HeLa H3K27ac, and compartment scores are unphased.")),'))
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'ex <- identical(input$re_source,"HeLa-S3 study")',
+  c('    ex <- identical(input$re_source, "HeLa-S3 study")',
+    '    cervical <- identical(input$re_source, "Cervical RAD51B (GSE195631)")',
+    '    cervical_path <- function(file) file.path(reanalysis_root, "data", "GSE195631", file)'))
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'samples <- read.csv(experiment_example_samples_path)',
+  c('        samples <- read.csv(experiment_example_samples_path)',
+    '      } else if (cervical) {',
+    '        contacts <- read.csv(cervical_path("RAD51B_cervical_contacts_25kb.csv.gz"))',
+    '        samples <- read.csv(cervical_path("samples_GRCh38.csv"))'))
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'g <- if(ex) read.csv(example) else {',
+  c('      g <- if (ex) read.csv(example) else if (cervical) {',
+    '        read.csv(cervical_path("RAD51B_GRCh38.csv"))',
+    '      } else {'))
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'if (!ex && !is.null(input$re_phase)) {',
+  '      if (!ex && !cervical && !is.null(input$re_phase)) {')
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'if (!ex && !is.null(input$re_features)) {',
+  '      if (cervical || (!ex && !is.null(input$re_features))) {')
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'features <- read.delim(input$re_features$datapath,header=FALSE,comment.char="#",quote="")',
+  c('        feature_path <- if (cervical) cervical_path("HeLa_H3K27ac_GRCh38.bed") else input$re_features$datapath',
+    '        features <- read.delim(feature_path, header=FALSE, comment.char="#", quote="")'))
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'c(d,list(genes=g,phase=phase,features=features,example=ex))',
+  '      c(d, list(genes=g, phase=phase, features=features, example=ex, cervical=cervical))')
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'labels <- setNames(s$sample_id,paste(s$condition,s$time_hours,"h ·",s$sample_id))',
+  c('    label <- if (stored()$cervical) paste(s$condition, "·", s$sample_id) else paste(s$condition, s$time_hours, "h ·", s$sample_id)',
+    '    labels <- setNames(s$sample_id, label)'))
+reanalysis <- replace_reanalysis_line(reanalysis,
+  'list(ids=ids,labels=setNames(paste(s$condition,s$time_hours,"h ·",ids),ids))',
+  c('    label <- if (d$cervical) paste(s$condition, "·", ids) else paste(s$condition, s$time_hours, "h ·", ids)',
+    '    list(ids=ids, labels=setNames(label, ids))'))
+writeLines(reanalysis, reanalysis_file)
 map_row <- grep('h4("Local contact maps"),plotOutput("re_locus_maps",height=400),', reanalysis, fixed = TRUE)
 track_output <- grep('  output$re_locus_tracks <-', reanalysis, fixed = TRUE)
 if (length(map_row) == 1L && length(track_output) == 1L) {
@@ -38,11 +94,11 @@ ui_lines <- append(ui_lines, c(
   '        tags$section(class="card",',
   '          h3("Compare RAD51B promoter contacts in HeLa and CaSki"),',
   '          p("GSE195631 · GRCh38 · chr14:65.25–70.50 Mb · 25 kb bins"),',
-  '          p(actionButton("open_rad51b_upload", "Open Hi-C upload")),',
+  '          p(actionButton("open_rad51b_example", "Load cervical example"), " ", tags$a("Example files on GitHub", href="https://github.com/Bafana-saltiel/Cervical-Chromatin-Shiny/blob/main/GSE195631_RAD51B_HiC_upload.zip", target="_blank", rel="noopener")),',
   '          tags$ol(',
-  '            tags$li("Extract the ZIP. Upload RAD51B_cervical_contacts_25kb.csv.gz as Contacts, samples_GRCh38.csv as Sample metadata, and RAD51B_GRCh38.csv as Gene or DEG lists."),',
+  '            tags$li("Load the bundled data to open the Hi-C reanalysis with the cervical example selected."),',
   '            tags$li("Start with HeLa as the reference, CaSki as the comparison, and RAD51B as the promoter."),',
-  '            tags$li("Optionally upload HeLa_H3K27ac_GRCh38.bed as the feature track. Both views show the same HeLa annotation. Overlap in the CaSki view identifies a location annotated in HeLa.")),',
+  '            tags$li("Both views show the bundled HeLa H3K27ac track. Overlap in the CaSki view identifies a location annotated in HeLa.")),',
   '          p("The regional analysis provides contact maps, candidate TAD boundaries, unphased compartment scores, and promoter-centred virtual 4C. Compare RNA expression using the separate CSV. WGBS links are included for follow-up. Methylation has yet to be summarized."),',
   '          p(tags$a("GSE195631 study and source files", href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE195631", target="_blank", rel="noopener"))),',
   '        tags$section(class="card",',
@@ -120,9 +176,9 @@ ui_lines <- append(ui_lines, c(
 server_hook <- grep('server <- function(input,output,session){', ui_lines, fixed = TRUE)
 stopifnot(length(server_hook) == 1L)
 ui_lines <- append(ui_lines, c(
-  '  observeEvent(input$open_rad51b_upload, {',
+  '  observeEvent(input$open_rad51b_example, {',
   '    updateTabsetPanel(session, "analysis_tab", selected = "Hi-C reanalysis")',
-  '    updateRadioButtons(session, "re_source", selected = "Upload study")',
+  '    updateRadioButtons(session, "re_source", selected = "Cervical RAD51B (GSE195631)")',
   '  })'
 ), after = server_hook)
 writeLines(ui_lines, ui_file)
