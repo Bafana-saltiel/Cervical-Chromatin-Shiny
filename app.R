@@ -61,7 +61,7 @@ ui_lines <- append(ui_lines, c(
   '          tags$a("GSE176066 assay records and downloads", href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE176066")),',
   '        tags$section(class="card",',
   '          h3("Interpretation across studies"),',
-  '          p("The GSE198610 ICRF-193 comparison remains a separate HeLa-S3 Hi-C analysis. These model datasets can provide baseline multi-omics and a TNF-α example. RAD51B transcription after ICRF-193 still requires treatment-matched RNA."))),'
+  '          p("The GSE198610 ICRF-193 comparison remains a separate HeLa-S3 Hi-C analysis. These model datasets can provide baseline multi-omics and a TNF-α example. RAD51B transcription after ICRF-193 still requires treatment-matched RNA."))),',
   '      tabPanel("RAD51B evidence",',
   '        tags$section(class="card",',
   '          h3("Candidate distal regulatory contact"),',
