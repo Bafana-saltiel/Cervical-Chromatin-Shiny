@@ -59,6 +59,16 @@ ui_lines <- append(ui_lines, c(
   '          h4("RAD51B expression in HeLa"),',
   '          p("DepMap Public 24Q4 HeLa (ACH-001086) baseline RAD51B expression is 1.952 log2(TPM + 1), equivalent to approximately 2.87 TPM. This measurement comes from the HeLa cell-line data bundled with the app."),',
   '          p(tags$a("DepMap Public 24Q4", href="https://doi.org/10.25452/figshare.plus.27993248.v1")),',
+  '          h5("GDSC2 drug response in HeLa"),',
+  '          p("DepMap ACH-001086 maps to GDSC2 HeLa SIDM00846 (COSMIC 1298134). The table shows topoisomerase II–related compounds with fitted response data for this model in GDSC2 release 8.5."),',
+  '          tags$table(class="table table-striped",',
+  '            tags$thead(tags$tr(tags$th("Compound (GDSC ID)"), tags$th("Fitted IC50 (µM)"), tags$th("Maximum screened (µM)"), tags$th("AUC"))),',
+  '            tags$tbody(',
+  '              tags$tr(tags$th("Epirubicin (1511)"), tags$td("1.262"), tags$td("1"), tags$td("0.918")),',
+  '              tags$tr(tags$th("Teniposide (1809)"), tags$td("3.113"), tags$td("3"), tags$td("0.905")),',
+  '              tags$tr(tags$th("Mitoxantrone (1810)"), tags$td("3.704"), tags$td("3"), tags$td("0.917")))),',
+  '          p("IC50 was calculated as exp(LN_IC50). All three estimates exceed the maximum concentration screened. GDSC2 release 8.5 contains no fitted response entry for ICRF-193. These viability assays provide pharmacological context for other compounds. RAD51B transcription after treatment remains unmeasured."),',
+  '          p(tags$a("GDSC2 dose-response data", href="https://cellmodelpassports.sanger.ac.uk/downloads/gdsc"), " · ", tags$a("HeLa model identity", href="https://cellmodelpassports.sanger.ac.uk/passports/SIDM00846")),',
   '          h5("Treatment-matched expression") ,',
   '          p("Untested. The GSE198610 deposit contains chromatin-contact assays. We did not identify matched RNA measurements for these six Hi-C samples. The regulatory effect on RAD51B expression remains unknown."))),'
 ), after = insert_after)
