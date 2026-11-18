@@ -28,6 +28,39 @@ if (length(map_row) == 1L && length(track_output) == 1L) {
   writeLines(reanalysis, reanalysis_file)
 }
 
+# Add the RAD51B evidence tab to the unpacked Shiny UI.
+ui_file <- file.path(source_dir, "app.R")
+ui_lines <- readLines(ui_file, warn = FALSE)
+insert_after <- grep('reanalysis_ui(),', ui_lines, fixed = TRUE)
+stopifnot(length(insert_after) == 1L)
+ui_lines <- append(ui_lines, c(
+  '      tabPanel("RAD51B evidence",',
+  '        tags$section(class="card",',
+  '          h3("Candidate distal regulatory contact"),',
+  '          p("RAD51B promoter bin chr14:67,750,000–68,000,000 and distal bin chr14:68,750,000–69,000,000 (GRCh38, zero-based, end-exclusive)."),',
+  '          h4("Enhancer marks in the distal bin"),',
+  '          p("Seven HeLa-S3 H3K27ac peak intervals from ENCODE2 overlap the bin after mapping from hg19 to GRCh38. The ENCODE combined registry lists 166 distal enhancer-like elements in the bin, 94 of which intersect those H3K27ac intervals. The registry aggregates cell types. The histone marks come from a separate HeLa-S3 experiment and do not establish activity under either treatment."),',
+  '          tags$details(tags$summary("HeLa-S3 H3K27ac overlap intervals (GRCh38)"),',
+  '            p("68,785,420–68,787,532; 68,789,920–68,798,246; 68,813,497–68,821,443; 68,824,398–68,824,513; 68,824,596–68,825,054; 68,911,873–68,912,379; 68,919,493–68,990,265 (chr14).")),',
+  '          a("ENCODE H3K27ac experiment", href="https://www.encodeproject.org/experiments/ENCSR000AOC/"), " · ",',
+  '          a("ENCODE cCRE track", href="https://genome.ucsc.edu/cgi-bin/hgTrackUi?db=hg38&g=encodeCcreCombined")),',
+  '        tags$section(class="card",',
+  '          h4("Contact enrichment by replicate"),',
+  '          p("Unsorted HeLa-S3 mitotic release at 4 h. Observed/expected uses the balanced contact divided by the mean balanced chr14 contact at 1 Mb in the same sample."),',
+  '          tags$table(class="table table-striped",',
+  '            tags$thead(tags$tr(tags$th("Replicate"), tags$th("DMSO O/E"), tags$th("ICRF-193 O/E"), tags$th("Change"))),',
+  '            tags$tbody(',
+  '              tags$tr(tags$th("R1"), tags$td("2.819 (GSM5953578)"), tags$td("2.410 (GSM5953577)"), tags$td("−14.5%")),',
+  '              tags$tr(tags$th("R2"), tags$td("2.636 (GSM5953572)"), tags$td("2.242 (GSM5953571)"), tags$td("−15.0%")),',
+  '              tags$tr(tags$th("R3"), tags$td("2.745 (GSM5953542)"), tags$td("2.534 (GSM5953540)"), tags$td("−7.7%")))),',
+  '          p("Enrichment exceeded 1 in all six samples and was lower with ICRF-193 in each pair. This is a descriptive comparison of the selected bin pair."),',
+  '          a("GEO GSE198610", href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE198610")),',
+  '        tags$section(class="card",',
+  '          h4("RAD51B expression in matched samples"),',
+  '          p("Untested. The GSE198610 deposit contains chromatin-contact assays. We did not identify matched RNA measurements for these six Hi-C samples. The regulatory effect on RAD51B expression remains unknown."))),'
+), after = insert_after)
+writeLines(ui_lines, ui_file)
+
 addResourcePath("chromatin-assets", file.path(source_dir, "www"))
 app_environment <- new.env(parent = globalenv())
 evalq({
