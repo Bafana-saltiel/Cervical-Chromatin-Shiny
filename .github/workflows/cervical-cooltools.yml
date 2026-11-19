@@ -33,7 +33,7 @@ jobs:
           environment-name: chromatin
           create-args: >-
             -c conda-forge -c bioconda
-            python=3.11 hictk cooler=0.10 cooltools=0.7 pybigwig
+            python=3.11 pandas=2.2.3 hictk cooler=0.10 cooltools=0.7 pybigwig
       - name: Download and convert published maps
         env:
           LINE: ${{ matrix.line }}
@@ -44,8 +44,8 @@ jobs:
           root=https://ftp.ncbi.nlm.nih.gov/geo/samples
           hic_url="$root/GSM6658nnn/$HIC/suppl/${HIC}_${LINE}.allValidPairs.hic"
           track_url="$root/GSM5842nnn/$SIGNAL/suppl/${SIGNAL}_${LINE}-H3K27ac.bw"
-          curl --fail --location --retry 3 "$hic_url" --output input.hic
-          curl --fail --location --retry 3 "$track_url" --output activity.bw
+          curl --fail --location --retry 5 --retry-all-errors --retry-delay 5 --connect-timeout 30 "$hic_url" --output input.hic
+          curl --fail --location --retry 5 --retry-all-errors --retry-delay 5 --connect-timeout 30 "$track_url" --output activity.bw
           printf 'Hi-C\t%s\nH3K27ac\t%s\n' "$hic_url" "$track_url" > results/sources.tsv
           hictk convert input.hic raw.cool --resolutions 25000 --normalization-methods NONE --genome GRCh38
           rm input.hic
