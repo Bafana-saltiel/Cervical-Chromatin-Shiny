@@ -102,6 +102,54 @@ jobs:
           Review compartment eigenvectors and phasing coverage before A/B assignment.
           Review the GitHub Actions job status before using any partial outputs.
           EOF
+      - name: Validate analysis tables and record checksums
+        env:
+          LINE: ${{ matrix.line }}
+        run: |
+          python - <<'PYVALIDATE'
+          from pathlib import Path
+          import hashlib
+          import os
+          import numpy as np
+          import pandas as pd
+
+          root = Path('results')
+          specs = {
+              'insulation_25kb.tsv': ['chrom', 'start', 'end', 'log2_insulation_score_250000', 'is_boundary_250000'],
+              'compartments_250kb.cis.vecs.tsv': ['chrom', 'start', 'end', 'E1'],
+              'expected_25kb.tsv': ['region1', 'region2', 'dist', 'n_valid', 'balanced.avg'],
+              'dots_25kb.tsv': ['chrom1', 'start1', 'end1', 'chrom2', 'start2', 'end2'],
+          }
+          summary = []
+          for name, columns in specs.items():
+              path = root / name
+              table = pd.read_csv(path, sep='\t')
+              missing = set(columns) - set(table.columns)
+              if missing:
+                  raise ValueError(f'{name}: missing columns {sorted(missing)}')
+              if name != 'dots_25kb.tsv' and table.empty:
+                  raise ValueError(f'{name}: no data rows')
+              metric = next((c for c in ['log2_insulation_score_250000', 'E1', 'balanced.avg'] if c in table.columns), None)
+              usable = int(np.isfinite(pd.to_numeric(table[metric], errors='coerce')).sum()) if metric else len(table)
+              if metric and usable == 0:
+                  raise ValueError(f'{name}: no finite {metric} values')
+              if 'chrom' in table:
+                  if not table.chrom.astype(str).isin(['14', 'chr14']).all():
+                      raise ValueError(f'{name}: unexpected chromosome')
+                  if not ((table.start >= 0) & (table.end > table.start) & (table.end <= 107043718)).all():
+                      raise ValueError(f'{name}: invalid GRCh38 coordinates')
+              summary.append({'file': name, 'rows': len(table), 'finite_metric_rows': usable, 'metric': metric or 'not applicable'})
+          pd.DataFrame(summary).to_csv(root / 'validation.tsv', sep='\t', index=False)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write(f"## {os.environ['LINE']}: output validation passed\n\n")
+              for item in summary:
+                  out.write(f"- {item['file']}: {item['rows']} rows; {item['finite_metric_rows']} usable rows.\n")
+              out.write('\nZero called dots is a valid outcome. These checks verify table structure and usable values, not biological validity or differential significance.\n')
+          with open(root / 'SHA256SUMS', 'w') as out:
+              for path in sorted(root.iterdir()):
+                  if path.is_file() and path.name != 'SHA256SUMS':
+                      out.write(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n')
+          PYVALIDATE
       - uses: actions/upload-artifact@v4
         if: always()
         with:
